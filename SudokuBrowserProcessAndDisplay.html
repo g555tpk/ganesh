@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		
+		<meta charset="UTF-8"/>
+		<meta http-equiv="content-type" content="text/html; UTF-8"/>
+
+		<title>Sudoku</title>
+
+        <script>
+            // A Backtracking program  in javascript to solve Sudoku problem
+        
+        
+        // UNASSIGNED is used for empty cells in sudoku grid
+        const UNASSIGNED = 0
+        
+        // N is used for size of Sudoku grid. Size will be NxN
+        // #define N 9
+        const N = 9
+        
+        // This function finds an entry in grid that is still unassigned
+        // bool FindUnassignedLocation(int grid[N][N], int &row, int &col);
+        // let  FindUnassignedLocation
+        
+        // Checks whether it will be legal to assign num to the given row,col
+        // bool isSafe(int grid[N][N], int row, int col, int num);
+        // let isSafe
+        
+        /* Takes a partially filled-in grid and attempts to assign values to
+          all unassigned locations in such a way to meet the requirements
+          for Sudoku solution (non-duplication across rows, columns, and boxes) */
+        //bool SolveSudoku(int grid[N][N])
+        function SolveSudoku(grid)
+        {
+            //int row, col;
+            var row=0,col=0;
+        
+            // If there is no unassigned location, we are done
+            let pos = FindUnassignedLocation(grid, row, col)
+            if (!pos)
+               return true; // success!
+        row=pos.rowpos
+        col=pos.colpos
+            // consider digits 1 to 9
+            for (let num = 1; num <= 9; num++)
+            {
+                // if looks promising
+                if (isSafe(grid, row, col, num))
+                {
+                    // make tentative assignment
+                    grid[row][col] = num;
+        
+                    // return, if success, yay!
+                    if (SolveSudoku(grid))
+                        return true;
+        
+                    // failure, unmake & try again
+                    grid[row][col] = UNASSIGNED;
+                }
+            }
+            return false; // this triggers backtracking
+        }
+        
+        /* Searches the grid to find an entry that is still unassigned. If
+           found, the reference parameters row, col will be set the location
+           that is unassigned, and true is returned. If no unassigned entries
+           remain, false is returned. */
+        //bool FindUnassignedLocation(int grid[N][N], int &row, int &col)
+        function FindUnassignedLocation(grid,rowAdd,colAdd)
+        {
+            for (row = 0; row < N; row++)
+                for (col = 0; col < N; col++)
+                    if (grid[row][col] == UNASSIGNED)
+                        return {"result":true,"rowpos":row,"colpos":col};
+            return false;
+        }
+        
+        /* Returns a boolean which indicates whether any assigned entry
+           in the specified row matches the given number. */
+        //bool UsedInRow(int grid[N][N], int row, int num)
+        function UsedInRow(grid,row,num)
+        {
+            for (let col = 0; col < N; col++)
+                if (grid[row][col] == num)
+                    return true;
+            return false;
+        }
+        
+        /* Returns a boolean which indicates whether any assigned entry
+           in the specified column matches the given number. */
+        //bool UsedInCol(int grid[N][N], int col, int num)
+        function UsedInCol(grid,col,num)
+        {
+            for (let row = 0; row < N; row++)
+                if (grid[row][col] == num)
+                    return true;
+            return false;
+        }
+        
+        /* Returns a boolean which indicates whether any assigned entry
+           within the specified 3x3 box matches the given number. */
+        //bool UsedInBox(int grid[N][N], int boxStartRow, int boxStartCol, int num)
+        function UsedInBox(grid,boxStartRow,boxStartCol,num)
+        {
+            for (let row = 0; row < 3; row++)
+                for (let col = 0; col < 3; col++)
+                    if (grid[row+boxStartRow][col+boxStartCol] == num)
+                        return true;
+            return false;
+        }
+        
+        /* Returns a boolean which indicates whether it will be legal to assign
+           num to the given row,col location. */
+        // bool isSafe(int grid[N][N], int row, int col, int num)
+        function isSafe(grid,row,col,num)
+        {
+            /* Check if 'num' is not already placed in current row,
+               current column and current 3x3 box */
+            return !UsedInRow(grid, row, num) &&
+                   !UsedInCol(grid, col, num) &&
+                   !UsedInBox(grid, row - row%3 , col - col%3, num);
+        }
+        
+        /* A utility function to print grid  */
+        // void printGrid(int grid[N][N])
+        function printGrid(grid)
+        {
+            for (let row = 0; row < N; row++)
+            {
+                mytext= " "
+               for (let col = 0; col < N; col++)
+                   //  printf("%2d", grid[row][col]);
+                   mytext+=grid[row][col]
+               // printf("\n");
+               console.log(mytext)
+            }
+            
+        }
+        
+        /* Driver Program to test above functions */
+        function sudokuSolvingMainFunction(problemString)
+        {
+          
+            // 0 means unassigned cells
+            
+            let grid = [[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0]];
+                                        
+           for(i=0;i<9;i++)
+           {
+                for(j=0;j<9;j++)
+                {
+                    k=(i*9)+j
+                    grid[i][j]=problemString.substring(k,k+1)            
+                }
+            }         
+            if (SolveSudoku(grid) == true){
+            document.getElementById("resultStatus").innerHTML = "Result found";
+                //  printGrid(grid);
+                resultString=""
+                for(i=0;i<9;i++)
+           for(j=0;j<9;j++)
+           resultString+=grid[i][j]
+                return resultString
+            }
+            else{
+               //  printf("No solution exists");
+              // console.log("No solution exists")
+              document.getElementById("resultStatus").innerHTML = "No solution exists";
+       
+            return "";
+            }
+        }
+        function framing3by3format(str)
+        {
+            newstr="";
+                k=0;
+                for(i=0;i<81;i=i+9)
+                { 
+                   for (j=0;j<9;j=j+3){
+                        newstr=newstr+str.substring(i+j,i+j+3)+" "
+                    }
+                    
+                newstr=newstr+"\n"
+                k++;
+                if(k%3==0) newstr=newstr+"\n"
+        
+                }
+                return newstr
+        }
+        
+        function loadToDisplay(){
+            document.getElementById("problem").innerHTML = framing3by3format(document.getElementById("sudokuProblemInput").value);
+        }
+            function sendToSolve() {   
+              solution =   sudokuSolvingMainFunction(document.getElementById("sudokuProblemInput").value )
+                
+                document.getElementById("result").innerHTML = framing3by3format(solution);
+            }
+            </script>
+
+    </head>
+    <body>
+        
+        <p><label for="sudokuProblemInput">Please input your Sudoku Problem</label>
+</p>
+        <input type="text" id="sudokuProblemInput" name="sudokuProblem" required
+               minlength="81" maxlength="81" size="90"></textarea>
+               <br><br>
+
+<label id="problemStatus">Click Load Button to Display input string in  3x3 x 3</label>
+<br><br>
+  <textarea id="problem" rows="13" cols="13" disabled>Please click the Load Button for the input to display here</textarea>
+  <button id="load" onclick="loadToDisplay()" >Load</button>
+  <br><br>
+<label id="resultStatus">I am waiting</label>
+<br><br>
+  <textarea id="result" rows="13" cols="13" disabled>Please click the Solve Button for the result to display here</textarea>
+  <button id="solve" onclick="sendToSolve()" >Solve</button>
+    </body>
+    </html>
